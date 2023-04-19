@@ -1,3 +1,7 @@
+# Emergency Network
+
+This is a proof-of-concept communication system designed for maintaining emergency messaging during power loss on campus. This project assesses the viability of a flooding protocol for rapid message dissemination in critical situations. As a prototype, it employs a decentralized architecture, and aims to provide insights for future development of more advanced emergency communication systems.
+
 # Acknowledgements
 
 The LoRa Library this module has been based of was created by Sandeep Mistry at: https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md
