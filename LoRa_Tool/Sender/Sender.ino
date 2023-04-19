@@ -8,6 +8,9 @@ TinyGPSPlus gps;
 // Include lab utility library
 #include <lab_utils.h>
 
+// Include the flooding protocol library
+#include <flooding_protocol.h>
+
 // Common experiment definitions
 #include "experiment.h"
 
@@ -63,15 +66,29 @@ void send_packet(int i, int j)
 
 void loop()
 {
-  for (int i = 0; i < NUM_PARAMS; i++)
-  {
-    // Set new parameters
-    use_LoRa_params(params[i]);
-    delay(DELAY * 2);
+  use_LoRa_params(params[0]);
+  delay(DELAY * 2);
 
-    for (int j = 0; j < PKTS_PER_PARAM; j++)
-    {
-      send_packet(i, j);
-    }
+  int packetID = 1;
+  while (true) {
+    delay(DELAY);
+
+    PacketHeader header;
+    header.communicationID = COMM_ID;
+    header.nodeID = NODE_ID;
+    header.packetID = packetID;
+    header.hopCount = 0;
+
+    char * packet = writePacketHeader(&header);
+
+    // TODO : Append GPS data to packet.
+    
+    Serial.println(packet);
+
+    LoRa.beginPacket();
+    LoRa.print(packet);
+    LoRa.endPacket();
+
+    packetID += 1;
   }
 }
