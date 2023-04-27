@@ -74,6 +74,14 @@ PacketHeader * parsePacketHeader(char * packet) {
     index = read_csv_field(packet, index, communicationID, COMM_ID_LENGTH + 1);
     result->communicationID = communicationID;
 
+    // Read timestamp of packet.
+    char * timestamp = (char *) malloc(sizeof(char) * (MAX_NUM_CHARS + 1));
+    if (timestamp == nullptr) {
+        return nullptr;
+    }
+    index = read_csv_field(packet, index, timestamp, MAX_NUM_CHARS + 1);
+    result->time = timestamp;
+
     // Read Node ID.
     char numberBuffer[MAX_NUM_CHARS + 1];
     index = read_csv_field(packet, index, numberBuffer, MAX_NUM_CHARS + 1);
@@ -96,6 +104,20 @@ PacketHeader * parsePacketHeader(char * packet) {
         return nullptr;
     }
 
+    // Read GPS Latitude.
+    index = read_csv_field(packet, index, numberBuffer, MAX_NUM_CHARS);
+    success = str_to_int(numberBuffer, &result->gpsLat);
+    if (!success) {
+        return nullptr;
+    }
+
+    // Read GPS Longitdue.
+    index = read_csv_field(packet, index, numberBuffer, MAX_NUM_CHARS);
+    success = str_to_int(numberBuffer, &result->gpsLon);
+    if (!success) {
+        return nullptr;
+    }
+
     return result;
 }
 
@@ -107,7 +129,7 @@ void freePacketHeader(PacketHeader ** headerVar) {
 }
 
 char * writePacketHeader(PacketHeader * header) {
-    int maxPacketLength = COMM_ID_LENGTH + 1 + MAX_NUM_CHARS + 1 + MAX_NUM_CHARS + 1 + MAX_NUM_CHARS;
+    int maxPacketLength = COMM_ID_LENGTH + 6 * (1 + MAX_NUM_CHARS);
     char * packet = (char *) malloc(sizeof(char) * (maxPacketLength + 1));
     if (packet == nullptr)
         return nullptr;
@@ -115,11 +137,14 @@ char * writePacketHeader(PacketHeader * header) {
     int written = snprintf(
         packet,
         maxPacketLength + 1,
-        "%s,%d,%d,%d",
+        "%s,%s,%d,%d,%d,%d,%d",
         header->communicationID,
+        header->time,
         header->nodeID,
         header->packetID,
-        header->hopCount
+        header->hopCount,
+        header->gpsLat,
+        header->gpsLon
     );
     if (written < 0 || written >= maxPacketLength) {
         free(packet);
@@ -130,7 +155,7 @@ char * writePacketHeader(PacketHeader * header) {
 }
 
 int main() {
-    char * headerStr = (char *) "AAAA,123,256,777";
+    char * headerStr = (char *) "AAAA,00:00:00,123,256,777,100,101";
     PacketHeader * header = parsePacketHeader(headerStr);
     if (header) {
         char * written = writePacketHeader(header);

@@ -14,6 +14,9 @@ TinyGPSPlus gps;
 // Common experiment definitions
 #include "experiment.h"
 
+#include <time.h>
+#define MAX_NUM_CHARS 32
+
 void setup()
 {
   do_lab_setup(115200, BAND);
@@ -73,11 +76,20 @@ void loop()
   while (true) {
     delay(DELAY);
 
+    time_t mytime;
+    mytime = time(NULL);
+    char * timestring = ctime(&mytime);
+    timestring[strlen(timestring)-1] = '\0';
+
     PacketHeader header;
     header.communicationID = COMM_ID;
+
+    header.time = timestring;
     header.nodeID = NODE_ID;
     header.packetID = packetID;
     header.hopCount = 0;
+    header.gpsLat = gps.location.lat();
+    header.gpsLon = gps.location.lng();
 
     char * packet = writePacketHeader(&header);
 

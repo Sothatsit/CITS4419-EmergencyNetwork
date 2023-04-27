@@ -12,6 +12,8 @@ TinyGPSPlus gps;
 #include <flooding_protocol.h>
 
 #include <stdio.h>
+#include <time.h>
+#include <string.h>
 
 // Common experiment definitions
 #include "experiment.h"
@@ -257,21 +259,32 @@ void loop()
       continue;
     }
 
+    Serial.println("Receiving: ");
     Serial.println(inPacket);
     addSeenPacketID(header->packetID);
+  
+
+    time_t mytime;
+    mytime = time(NULL);
+    char * timestring = ctime(&mytime);
+    timestring[strlen(timestring)-1] = '\0';
 
     PacketHeader newHeader;
     newHeader.communicationID = COMM_ID;
+    newHeader.time = timestring;
     newHeader.nodeID = NODE_ID;
     newHeader.packetID = header->packetID;
     newHeader.hopCount = header->hopCount + 1;
+    newHeader.gpsLat = (int)gps.location.lat();
+    newHeader.gpsLon = (int)gps.location.lng();
 
     char * packet = writePacketHeader(&newHeader);
 
     // TODO : Append GPS data to packet.
 
-    Serial.print("Send: ");
+    Serial.println("Sending: ");
     Serial.println(packet);
+    Serial.print("----------------------\n");
 
     LoRa.beginPacket();
     LoRa.print(packet);
