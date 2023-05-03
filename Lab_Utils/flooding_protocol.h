@@ -12,6 +12,12 @@
  */
 #define FP_MAX_PACKET_NUMBER_CHARS 32
 
+/**
+ * We send the GPS latitude and longitude as an int that is the result
+ * of multipling the floating point latitude/longitude by this value.
+ */
+#define FP_GPS_SCALE 10000
+
 
 /**
  * One header per packet.

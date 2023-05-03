@@ -12,6 +12,7 @@ TinyGPSPlus gps;
 #include <flooding_protocol.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <string.h>
 
@@ -240,58 +241,76 @@ void loop()
 {
   use_LoRa_params(params[0]);
 
+  clock_t start = clock();
+
   while (true) {
     char * inPacket = read_packet();
     if (inPacket == nullptr)
       continue;
 
-    PacketHeader * header = parsePacketHeader(inPacket);
-    if (header == nullptr) {
+    Packet * packet = parsePacket(inPacket, COMM_ID);
+    if (packet == nullptr) {
       Serial.print("Unable to read packet header: ");
       Serial.println(inPacket);
       continue;
     }
 
     // Skip packets we've already seen.
-    if (hasSeenPacketID(header->packetID)) {
+    if (hasSeenPacketID(packet->header.packetID)) {
       Serial.print("Skipping Seen Packet: ");
       Serial.println(inPacket);
       continue;
     }
 
-    Serial.println("Receiving: ");
+    Serial.print("RECV: ");
     Serial.println(inPacket);
-    addSeenPacketID(header->packetID);
-  
 
-    time_t mytime;
-    mytime = time(NULL);
-    char * timestring = ctime(&mytime);
-    timestring[strlen(timestring)-1] = '\0';
+    // Print LoRa metrics
+    Serial.print("* Packet RSSI=");
+    Serial.print(LoRa.packetRssi());
+
+    Serial.print(", RSSI=");
+    Serial.print(LoRa.rssi());
+
+    Serial.print(", Packet SNR=");
+    Serial.println(LoRa.packetSnr());
+
+    addSeenPacketID(packet->header.packetID);
+  
+    int timestampMS = (int) (clock() - start);
 
     PacketHeader newHeader;
     newHeader.communicationID = COMM_ID;
-    newHeader.time = timestring;
-    newHeader.nodeID = NODE_ID;
-    newHeader.packetID = header->packetID;
-    newHeader.hopCount = header->hopCount + 1;
-    newHeader.gpsLat = (int)gps.location.lat();
-    newHeader.gpsLon = (int)gps.location.lng();
+    newHeader.packetID = packet->header.packetID;
+    newHeader.sourceNodeID = NODE_ID;
+    newHeader.destNodeID = packet->header.destNodeID;
+    newHeader.hopCount = packet->header.hopCount + 1;
 
-    char * packet = writePacketHeader(&newHeader);
+    PacketNodeInfo newNodeInfo;
+    newNodeInfo.nodeID = NODE_ID;
+    newNodeInfo.timestampMS = timestampMS;
+    newNodeInfo.gpsLat = (int) (gps.location.lat() * FP_GPS_SCALE);
+    newNodeInfo.gpsLon = (int) (gps.location.lng() * FP_GPS_SCALE);
 
-    // TODO : Append GPS data to packet.
+    Packet newPacket;
+    newPacket.header = newHeader;
+    newPacket.nodeInfoCount = packet->nodeInfoCount + 1;
+    newPacket.nodeInfo = (PacketNodeInfo *) malloc(sizeof(PacketNodeInfo) * newPacket.nodeInfoCount);
+    memcpy(newPacket.nodeInfo, packet->nodeInfo, sizeof(PacketNodeInfo) * packet->nodeInfoCount);
+    newPacket.nodeInfo[packet->nodeInfoCount] = newNodeInfo;
 
-    Serial.println("Sending: ");
-    Serial.println(packet);
-    Serial.print("----------------------\n");
+    char * writtenPacket = writePacket(&newPacket);
+
+    Serial.print("SEND: ");
+    Serial.println(writtenPacket);
 
     LoRa.beginPacket();
-    LoRa.print(packet);
+    LoRa.print(writtenPacket);
     LoRa.endPacket();
 
-    freePacketHeader(&header);
-    free(packet);
+    freePacket(&packet);
+    free(newPacket.nodeInfo);
+    free(writtenPacket);
     free(inPacket);
   }
 }

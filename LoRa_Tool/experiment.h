@@ -4,7 +4,7 @@
 
 // Prefix for all transmitted messages, for disambiguation
 #define COMM_ID "AAAJ"
-#define NODE_ID 1
+#define NODE_ID 3
 
 // Delay for transmission rate (ms)
 #define DELAY 1000

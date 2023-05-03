@@ -72,35 +72,41 @@ void loop()
   use_LoRa_params(params[0]);
   delay(DELAY * 2);
 
+  clock_t start = clock();
+
   int packetID = 1;
   while (true) {
     delay(DELAY);
 
-    time_t mytime;
-    mytime = time(NULL);
-    char * timestring = ctime(&mytime);
-    timestring[strlen(timestring)-1] = '\0';
+    int timestampMS = (int) (clock() - start);// / (CLOCKS_PER_SEC / 1000);
 
     PacketHeader header;
     header.communicationID = COMM_ID;
-
-    header.time = timestring;
-    header.nodeID = NODE_ID;
     header.packetID = packetID;
-    header.hopCount = 0;
-    header.gpsLat = gps.location.lat();
-    header.gpsLon = gps.location.lng();
+    header.sourceNodeID = NODE_ID;
+    header.destNodeID = 0;  // Broadcast
+    header.hopCount = 1;
 
-    char * packet = writePacketHeader(&header);
+    PacketNodeInfo newNodeInfo;
+    newNodeInfo.nodeID = NODE_ID;
+    newNodeInfo.timestampMS = timestampMS;
+    newNodeInfo.gpsLat = (int) (gps.location.lat() * FP_GPS_SCALE);
+    newNodeInfo.gpsLon = (int) (gps.location.lng() * FP_GPS_SCALE);
 
-    // TODO : Append GPS data to packet.
-    
-    Serial.println(packet);
+    Packet packet;
+    packet.header = header;
+    packet.nodeInfoCount = 1;
+    packet.nodeInfo = &newNodeInfo;
+    char * writtenPacket = writePacket(&packet);
+
+    Serial.print("SEND: ");
+    Serial.println(writtenPacket);
 
     LoRa.beginPacket();
-    LoRa.print(packet);
+    LoRa.print(writtenPacket);
     LoRa.endPacket();
 
+    free(writtenPacket);
     packetID += 1;
   }
 }

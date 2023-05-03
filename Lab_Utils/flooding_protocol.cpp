@@ -105,14 +105,12 @@ int parsePacketHeader(char * packet, char * expectedCommunicationID, PacketHeade
 
 int parsePacketNodeInfo(char * packet, int index, PacketNodeInfo * result) {
     bool success;
-    printf("parsePacketNodeInfo\n");
 
     // Read Node ID.
     char numberBuffer[FP_MAX_PACKET_NUMBER_CHARS + 1];
     index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS + 1);
     success = str_to_int(numberBuffer, &result->nodeID);
     if (!success) {
-        printf("a\n");
         return -1;
     }
 
@@ -128,16 +126,13 @@ int parsePacketNodeInfo(char * packet, int index, PacketNodeInfo * result) {
     index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
     success = str_to_int(numberBuffer, &result->gpsLat);
     if (!success) {
-        printf("c\n");
         return -1;
     }
 
     // Read GPS Longitdue.
     index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
-    printf("%s\n", numberBuffer);
     success = str_to_int(numberBuffer, &result->gpsLon);
     if (!success) {
-        printf("d\n");
         return -1;
     }
 
@@ -163,7 +158,7 @@ Packet * parsePacket(char * packet, char * expectedCommunicationID) {
 
     PacketNodeInfo * nodeInfo = (PacketNodeInfo *) malloc(sizeof(PacketNodeInfo) * result->nodeInfoCount);
     result->nodeInfo = nodeInfo;
-    if (nodeInfo == nullptr) {
+    if (result->nodeInfo == nullptr) {
         return nullptr;
     }
 
@@ -248,11 +243,20 @@ int main() {
     char * expectedCommunicationID = (char *) "AAAA";
     char * headerStr = (char *) "AAAA,122,123,256,1,3,4,5,6";
     Packet * packet = parsePacket(headerStr, expectedCommunicationID);
-    if (packet) {
-        printf("%lld\n", packet->nodeInfo);
-        char * written = writePacket(packet);
 
-        printf("%s\n", written);
+    if (packet) {
+        printf("communicationID = %s\n", packet->header.communicationID);
+        printf("packetID = %d\n", packet->header.packetID);
+        printf("sourceNodeID = %d\n", packet->header.sourceNodeID);
+        printf("destNodeID = %d\n", packet->header.destNodeID);
+        printf("hopCount = %d\n", packet->header.hopCount);
+        printf("nodeID = %d\n", packet->nodeInfo->nodeID);
+        printf("timestampMS = %d\n", packet->nodeInfo->timestampMS);
+        printf("gpsLat = %d\n", packet->nodeInfo->gpsLat);
+        printf("gpsLon = %d\n", packet->nodeInfo->gpsLon);
+
+        char * rewritten = writePacket(packet);
+        printf("rewritten = %s\n", rewritten);
     } else {
         printf("It broke\n");
     }
