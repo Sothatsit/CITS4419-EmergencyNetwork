@@ -1,0 +1,45 @@
+test 1: 0 transmit power
+- almost at ezone cafe when it failed
+- approximately -115 packet rssi when failed (>50% packet loss)
+
+test 2: -10 transmit power
+- at crosswalk it started to fail (>50% packet loss)
+
+test 3: spreading factor = 5 (down from 8)
+- Only received a few corrupted packets
+
+test 4: spreading factor = 7
+- Just before crosswalk it started to fail
+- Chosen as parameter to use
+
+test 5: spreading factor = 6
+- Only received corrupted packets
+
+test 6: bandwidth = 125E3 (down from 250E3)
+- At crosswalk it started to fail
+
+
+test 7: -20 transmit power
+- Receiving packets fine at crosswalk (-108 Packet RSSI)
+
+test 8: coding rate = 10 (up from 5)
+- No difference
+
+test 9: bandwidth = 500E3
+- Failed just before crosswalk
+
+test 10: bandwidth = 1000E3
+- Worked just fine before crosswalk
+
+test 11: coding rate = 0 (down from 10)
+- No difference
+
+test 12: removing receiver antenna
+- Reduced Packet RSSI by approximately 20
+
+test 13: removing sender antenna (no receiver antenna as well)
+- Received no packets
+
+test 14: transmit power = 0
+- About the same range
+

@@ -76,7 +76,7 @@ void loop()
 
   int packetID = 1;
   while (true) {
-    delay(DELAY);
+    smart_delay(DELAY);
 
     // We found clock() was in milliseconds already on the TTGO boards,
     // and the CLOCKS_PER_SEC value was incorrect. Therefore, we just

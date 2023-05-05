@@ -244,36 +244,31 @@ void loop()
   clock_t start = clock();
 
   while (true) {
+    if (GPSSerial.available()) {
+      gps.encode(GPSSerial.read());
+    }
+
     char * inPacket = read_packet();
-    if (inPacket == nullptr)
+    if (inPacket == nullptr) {
       continue;
+    }
 
     Packet * packet = parsePacket(inPacket, COMM_ID);
     if (packet == nullptr) {
-      Serial.print("Unable to read packet header: ");
+      Serial.print("CORRUPT: ");
       Serial.println(inPacket);
       continue;
     }
 
     // Skip packets we've already seen.
     if (hasSeenPacketID(packet->header.packetID)) {
-      Serial.print("Skipping Seen Packet: ");
+      Serial.print("DUPLICATE: ");
       Serial.println(inPacket);
       continue;
     }
 
     Serial.print("RECV: ");
     Serial.println(inPacket);
-
-    // Print LoRa metrics
-    Serial.print("* Packet RSSI=");
-    Serial.print(LoRa.packetRssi());
-
-    Serial.print(", RSSI=");
-    Serial.print(LoRa.rssi());
-
-    Serial.print(", Packet SNR=");
-    Serial.println(LoRa.packetSnr());
 
     addSeenPacketID(packet->header.packetID);
   
@@ -289,8 +284,11 @@ void loop()
     PacketNodeInfo newNodeInfo;
     newNodeInfo.nodeID = NODE_ID;
     newNodeInfo.timestampMS = timestampMS;
-    newNodeInfo.gpsLat = (int) (gps.location.lat() * FP_GPS_SCALE);
-    newNodeInfo.gpsLon = (int) (gps.location.lng() * FP_GPS_SCALE);
+    newNodeInfo.packetRSSI = (double) LoRa.packetRssi();
+    newNodeInfo.RSSI = (double) LoRa.rssi();
+    newNodeInfo.packetSNR = (double) LoRa.packetSnr();
+    newNodeInfo.gpsLat = (double) gps.location.lat();
+    newNodeInfo.gpsLon = (double) gps.location.lng();
 
     Packet newPacket;
     newPacket.header = newHeader;

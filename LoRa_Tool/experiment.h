@@ -3,8 +3,8 @@
 #define BAND 915E6
 
 // Prefix for all transmitted messages, for disambiguation
-#define COMM_ID "AAAJ"
-#define NODE_ID 3
+#define COMM_ID "ABCD"
+#define NODE_ID 1
 
 // Delay for transmission rate (ms)
 #define DELAY 1000
@@ -21,7 +21,7 @@ const LoRa_Params params[] = {
   // {   250E3,      5,           915E6,     10,              2},  // AAAG
   // {   250E3,      5,           915E6,     10,              1},  // AAAH
   // {   250E3,      5,           915E6,     8,              1},  // AAAI
-  {   250E3,      5,           915E6,     8,              0},  // AAAJ
+  {   500E3,      0,           915E6,        7,             0},  // AAAJ
 
   // {   250E3,      5,            9233E5,     6,                12},
   // {   500E3,      5,            9233E5,     6,                4},
