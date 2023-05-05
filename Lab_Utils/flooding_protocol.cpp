@@ -8,6 +8,36 @@
 
 #include "flooding_protocol.h"
 
+/**
+ * Produces a hash of the given string.
+ * http://www.cse.yorku.ca/~oz/hash.html
+ */
+unsigned long hash(char *str)
+{
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = *str++)) {
+        hash = (hash * 33) ^ c;
+    }
+    return hash;
+}
+
+/**
+ * Writes characters to result that represent the hash of str.
+ */
+void hash_as_str(char *str, char *result) {
+    unsigned long hashValue = hash(str);
+
+    const char *hashChars = FP_HASH_CHARS;
+    int hashCharCount = strlen(hashChars);
+
+    for (int index = 0; index < FP_HASH_LENGTH; ++index) {
+        int value = (int) (hashValue % hashCharCount);
+        hashValue /= hashCharCount;
+        result[index] = hashChars[value];
+    }
+}
 
 /**
  * Returns the index of the start of the next CSV field.
@@ -51,6 +81,20 @@ bool str_to_int(const char *str, int *result) {
 
     *result = (int)long_res;
     return true;
+}
+
+bool str_to_float(const char *str, double *result) {
+    int intResult;
+    if (!str_to_int(str, &intResult)) {
+        return false;
+    }
+
+    *result = ((double) intResult) / ((double) FP_FIXED_POINT_SCALE);
+    return true;
+}
+
+int float_to_int(double value) {
+    return (int) (((double) value) * ((double) FP_FIXED_POINT_SCALE));
 }
 
 
@@ -122,16 +166,37 @@ int parsePacketNodeInfo(char * packet, int index, PacketNodeInfo * result) {
         return -1;
     }
 
+    // Read Packet RSSI.
+    index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
+    success = str_to_float(numberBuffer, &result->packetRSSI);
+    if (!success) {
+        return -1;
+    }
+
+    // Read RSSI.
+    index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
+    success = str_to_float(numberBuffer, &result->RSSI);
+    if (!success) {
+        return -1;
+    }
+
+    // Read Packet SNR.
+    index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
+    success = str_to_float(numberBuffer, &result->packetSNR);
+    if (!success) {
+        return -1;
+    }
+
     // Read GPS Latitude.
     index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
-    success = str_to_int(numberBuffer, &result->gpsLat);
+    success = str_to_float(numberBuffer, &result->gpsLat);
     if (!success) {
         return -1;
     }
 
     // Read GPS Longitdue.
     index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
-    success = str_to_int(numberBuffer, &result->gpsLon);
+    success = str_to_float(numberBuffer, &result->gpsLon);
     if (!success) {
         return -1;
     }
@@ -140,13 +205,27 @@ int parsePacketNodeInfo(char * packet, int index, PacketNodeInfo * result) {
 }
 
 Packet * parsePacket(char * packet, char * expectedCommunicationID) {
+    // Read the hash.
+    for (int index = 0; index < FP_HASH_LENGTH; ++index) {
+        if (packet[index] == '\0') {
+            return nullptr;
+        }
+    }
+    if (packet[FP_HASH_LENGTH] != ':') {
+        return nullptr;
+    }
+    char * receivedHash = packet;
+    char * packetContent = &packet[FP_HASH_LENGTH + 1];
+
+    // Read the packet.
     Packet * result = (Packet *) malloc(sizeof(Packet));
     if (result == nullptr) {
         return nullptr;
     }
 
-    int index = parsePacketHeader(packet, expectedCommunicationID, &result->header);
+    int index = parsePacketHeader(packetContent, expectedCommunicationID, &result->header);
     if (index < 0) {
+        free(result);
         return nullptr;
     }
 
@@ -158,16 +237,31 @@ Packet * parsePacket(char * packet, char * expectedCommunicationID) {
 
     PacketNodeInfo * nodeInfo = (PacketNodeInfo *) malloc(sizeof(PacketNodeInfo) * result->nodeInfoCount);
     result->nodeInfo = nodeInfo;
-    if (result->nodeInfo == nullptr) {
+    if (nodeInfo == nullptr) {
+        free(result);
         return nullptr;
     }
 
     for (int hop = 0; hop < result->nodeInfoCount; ++hop) {
-        index = parsePacketNodeInfo(packet, index, &nodeInfo[hop]);
+        index = parsePacketNodeInfo(packetContent, index, &nodeInfo[hop]);
         if (index < 0) {
+            free(result);
+            free(nodeInfo);
             return nullptr;
         }
     }
+
+    // Verify the hash.
+    char contentHash[FP_HASH_LENGTH];
+    hash_as_str(packetContent, contentHash);
+    for (int index = 0; index < FP_HASH_LENGTH; ++index) {
+        if (contentHash[index] != receivedHash[index]) {
+            free(result);
+            free(nodeInfo);
+            return nullptr;
+        }
+    }
+
     return result;
 }
 
@@ -187,7 +281,7 @@ void freePacket(Packet ** packetVar) {
 char * writePacket(Packet * packet) {
     // Just allocate as much as we could possibly need,
     // as it won't be that much memory anyway.
-    int maxPacketLength = FP_COMM_ID_LENGTH + 4 * (1 + FP_MAX_PACKET_NUMBER_CHARS);
+    int maxPacketLength = FP_HASH_LENGTH + 1 + FP_COMM_ID_LENGTH + 4 * (1 + FP_MAX_PACKET_NUMBER_CHARS);
     for (int hop = 0; hop < packet->header.hopCount; ++hop) {
         maxPacketLength += 4 * (1 + FP_MAX_PACKET_NUMBER_CHARS);
     }
@@ -197,8 +291,12 @@ char * writePacket(Packet * packet) {
         return nullptr;
     }
 
+    // We will write the hash of the packet later.
+    char * hashStart = writtenPacket;
+    char * contentStart = &writtenPacket[FP_HASH_LENGTH + 1];
+    char * writeHead = contentStart;
+
     // Write the packet header.
-    char * writeHead = writtenPacket;
     int written = snprintf(
         writeHead,
         maxPacketLength + 1,
@@ -222,11 +320,14 @@ char * writePacket(Packet * packet) {
         written = snprintf(
             writeHead,
             maxPacketLength + 1,
-            ",%d,%d,%d,%d",
+            ",%d,%d,%d,%d,%d,%d,%d",
             nodeInfo->nodeID,
             nodeInfo->timestampMS,
-            nodeInfo->gpsLat,
-            nodeInfo->gpsLon
+            float_to_int(nodeInfo->packetRSSI),
+            float_to_int(nodeInfo->RSSI),
+            float_to_int(nodeInfo->packetSNR),
+            float_to_int(nodeInfo->gpsLat),
+            float_to_int(nodeInfo->gpsLon)
         );
         writeHead = &writeHead[written];
         if (written < 0 || written >= maxPacketLength) {
@@ -235,13 +336,19 @@ char * writePacket(Packet * packet) {
         }
     }
 
+    // Finish the packet content.
     writeHead[written] = '\0';
+
+    // Take a hash of the packet content and write it to the front of the packet.
+    hash_as_str(contentStart, hashStart);
+    hashStart[FP_HASH_LENGTH] = ':';
+
     return writtenPacket;
 }
 
 int main() {
     char * expectedCommunicationID = (char *) "AAAA";
-    char * headerStr = (char *) "AAAA,122,123,256,1,3,4,5,6";
+    char * headerStr = (char *) "5U3M:AAAA,122,123,256,1,3,4,99999,1023040,123123,5,6";
     Packet * packet = parsePacket(headerStr, expectedCommunicationID);
 
     if (packet) {
@@ -252,13 +359,16 @@ int main() {
         printf("hopCount = %d\n", packet->header.hopCount);
         printf("nodeID = %d\n", packet->nodeInfo->nodeID);
         printf("timestampMS = %d\n", packet->nodeInfo->timestampMS);
-        printf("gpsLat = %d\n", packet->nodeInfo->gpsLat);
-        printf("gpsLon = %d\n", packet->nodeInfo->gpsLon);
+        printf("packetRSSI = %.6f\n", packet->nodeInfo->packetRSSI);
+        printf("RSSI = %.6f\n", packet->nodeInfo->RSSI);
+        printf("packetSNR = %.6f\n", packet->nodeInfo->packetSNR);
+        printf("gpsLat = %.6f\n", packet->nodeInfo->gpsLat);
+        printf("gpsLon = %.6f\n", packet->nodeInfo->gpsLon);
 
         char * rewritten = writePacket(packet);
         printf("rewritten = %s\n", rewritten);
     } else {
-        printf("It broke\n");
+        printf("The packet is corrupted\n");
     }
 
     freePacket(&packet);

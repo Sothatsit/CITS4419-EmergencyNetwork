@@ -78,7 +78,11 @@ void loop()
   while (true) {
     delay(DELAY);
 
-    int timestampMS = (int) (clock() - start);// / (CLOCKS_PER_SEC / 1000);
+    // We found clock() was in milliseconds already on the TTGO boards,
+    // and the CLOCKS_PER_SEC value was incorrect. Therefore, we just
+    // use the clock() as milliseconds. If a different board is used,
+    // this may be incorrect.
+    int timestampMS = (int) (clock() - start);
 
     PacketHeader header;
     header.communicationID = COMM_ID;
@@ -90,8 +94,12 @@ void loop()
     PacketNodeInfo newNodeInfo;
     newNodeInfo.nodeID = NODE_ID;
     newNodeInfo.timestampMS = timestampMS;
-    newNodeInfo.gpsLat = (int) (gps.location.lat() * FP_GPS_SCALE);
-    newNodeInfo.gpsLon = (int) (gps.location.lng() * FP_GPS_SCALE);
+    // No LoRa metrics for the first packet sent.
+    newNodeInfo.packetRSSI = 0.0;
+    newNodeInfo.RSSI = 0.0;
+    newNodeInfo.packetSNR = 0.0;
+    newNodeInfo.gpsLat = (double) gps.location.lat();
+    newNodeInfo.gpsLon = (double) gps.location.lng();
 
     Packet packet;
     packet.header = header;

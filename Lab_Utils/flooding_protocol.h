@@ -13,10 +13,21 @@
 #define FP_MAX_PACKET_NUMBER_CHARS 32
 
 /**
- * We send the GPS latitude and longitude as an int that is the result
- * of multipling the floating point latitude/longitude by this value.
+ * We send floating point values as ints that are the rounded result
+ * of multipling the floating point values by this scale.
+ * Reason for Choice: 1-meter GPS precision requires 5 decimal places.
  */
-#define FP_GPS_SCALE 10000
+#define FP_FIXED_POINT_SCALE 100000
+
+/**
+ * The number of characters to use to write a hash of each packet.
+ */
+#define FP_HASH_LENGTH 4
+
+/**
+ * The characters to use to write the hash to the packet.
+ */
+#define FP_HASH_CHARS "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 /**
@@ -74,14 +85,29 @@ typedef struct
     int timestampMS;
 
     /**
+     * The Received Signal Strength Indicator of the packet.
+    */
+    double packetRSSI;
+
+    /**
+     * The Received Signal Strength Indicator.
+    */
+    double RSSI;
+
+    /**
+     * The Signal to Noise Ratio.
+     */
+    double packetSNR;
+
+    /**
      * The latitude of this node, from the GPS.
      */
-    int gpsLat;
+    double gpsLat;
 
     /**
      * The longitude of this node, from the GPS.
      */
-    int gpsLon;
+    double gpsLon;
 
 } PacketNodeInfo;
 
