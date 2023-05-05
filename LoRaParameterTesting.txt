@@ -43,3 +43,13 @@ test 13: removing sender antenna (no receiver antenna as well)
 test 14: transmit power = 0
 - About the same range
 
+Decided to use following parameters:
+* Bandwidth = 500E3
+* Coding Rate = 5
+* Frequency = 915E6
+* Spreading Factor = 7
+* Transmit Power = 0
+
+Approximate Range (through buildings) = 250m
+
+
