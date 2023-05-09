@@ -4,3 +4,4 @@ code.code-workspace
 api-key.txt
 test.txt
 .DS_Store
+logs/*
