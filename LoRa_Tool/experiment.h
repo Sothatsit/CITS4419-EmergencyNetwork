@@ -3,7 +3,7 @@
 #define BAND 915E6
 
 // Prefix for all transmitted messages, for disambiguation
-#define COMM_ID "AAAB"
+#define COMM_ID "ZZAA"
 #define NODE_ID 1
 
 // Delay for transmission rate (ms)
