@@ -9,31 +9,33 @@
 // Delay for transmission rate (ms)
 #define DELAY 100
 
+// ZZA- : Computer Science, Engineering Building, Reid Balcony
+
 // Define each parameter set
 const LoRa_Params params[] = {
   //  Bandwidth,  coding rate,  frequency,  spreading factor, transmit power
 
   // Base case.
-  {   500E3,      5,           915E6,        7,             0},  // AA
+  {   500E3,      5,           915E6,        7,             0},  // -A
 
   // Changing transmit power.
-  // {   500E3,      5,           915E6,        7,             4},  // AA
-  // {   500E3,      5,           915E6,        7,             8},  // AB
-  // {   500E3,      5,           915E6,        7,             12},  // AC
-  // {   500E3,      5,           915E6,        7,             16},  // AD
-  // {   500E3,      5,           915E6,        7,             20},  // AE
+  // {   500E3,      5,           915E6,        7,             4},  // ZZ-A
+  // {   500E3,      5,           915E6,        7,             8},  // ZZ-B
+  // {   500E3,      5,           915E6,        7,             12},  // ZZ-C
+  // {   500E3,      5,           915E6,        7,             16},  // ZZ-D
+  // {   500E3,      5,           915E6,        7,             20},  // ZZ-E
 
   // Changing bandwidth.
-  // {   500E3,      5,           915E6,        7,             0},  // AA
-  // {   250E3,      5,           915E6,        7,             0},  // AA
-  // {   100E3,      5,           915E6,        7,             0},  // AA
-  // {   50E3,       5,           915E6,        7,             0},  // AAx
+  // {   500E3,      5,           915E6,        7,             0},  // ZZ-E
+  // {   250E3,      5,           915E6,        7,             0},  // ZZ-F
+  // {   100E3,      5,           915E6,        7,             0},  // ZZ-G
+  // {   50E3,       5,           915E6,        7,             0},  // ZZ-H
 
   // Changing spreading factor.
-  // {   500E3,      5,           915E6,        7,             0},  // BA
-  // {   500E3,      5,           915E6,        8,             0},  // BB
-  // {   500E3,      5,           915E6,        10,            0},  // BC
-  // {   500E3,      5,           915E6,        12,            0},  // BD
+  // {   500E3,      5,           915E6,        7,             0},  // ZZ-I
+  // {   500E3,      5,           915E6,        8,             0},  // ZZ-J
+  // {   500E3,      5,           915E6,        10,            0},  // ZZ-K
+  // {   500E3,      5,           915E6,        12,            0},  // ZZ-L
 };
 
 // Number of different test parameter sets
