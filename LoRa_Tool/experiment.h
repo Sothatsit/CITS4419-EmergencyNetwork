@@ -16,7 +16,7 @@ const LoRa_Params params[] = {
   //  Bandwidth,  coding rate,  frequency,  spreading factor, transmit power
 
   // Base case.
-  {   500E3,      5,           915E6,        7,             0},  // -A
+  {   500E3,      5,           915E6,        7,             0},  // ZZ-A
 
   // Changing transmit power.
   // {   500E3,      5,           915E6,        7,             4},  // ZZ-A
