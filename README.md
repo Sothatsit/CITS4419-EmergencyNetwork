@@ -7,6 +7,8 @@ The following directories are important to this project:
 * `src/` contains the source code for the Sender and Receiver nodes for our flooding protocol.
 * `util/` contains the details of the flooding protocol, and shared code for the Sender and Receiver nodes.
 
+The report that was written for this project is available in `report.pdf`.
+
 # Acknowledgements
 
 The LoRa Library this module has been based of was created by Sandeep Mistry at: https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md
