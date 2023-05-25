@@ -162,7 +162,6 @@ int parsePacketNodeInfo(char * packet, int index, PacketNodeInfo * result) {
     index = read_csv_field(packet, index, numberBuffer, FP_MAX_PACKET_NUMBER_CHARS);
     success = str_to_int(numberBuffer, &result->timestampMS);
     if (!success) {
-        printf("b\n");
         return -1;
     }
 

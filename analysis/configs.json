@@ -1,0 +1,111 @@
+{
+    "AA": {
+        "delay_ms": 250,
+        "params": [250E3, 5, 915E6, 8, 0]
+    },
+    "AB": {
+        "delay_ms": 250,
+        "params": [250E3, 5, 915E6, 8, 4]
+    },
+    "AC": {
+        "delay_ms": 500,
+        "params": [250E3, 5, 915E6, 8, 8]
+    },
+    "AD": {
+        "delay_ms": 500,
+        "params": [250E3, 5, 915E6, 8, 12]
+    },
+    "AE": {
+        "delay_ms": 500,
+        "params": [250E3, 5, 915E6, 8, 16]
+    },
+    "AF": {
+        "delay_ms": 500,
+        "params": [250E3, 5, 915E6, 8, 20]
+    },
+    "AG": {
+        "delay_ms": 500,
+        "params": [500E3, 5, 915E6, 8, 4]
+    },
+    "AH": {
+        "duplicate": "AB"
+    },
+    "AI": {
+        "delay_ms": 1000,
+        "params": [100E3, 5, 915E6, 8, 4]
+    },
+    "AJ": {
+        "delay_ms": 1000,
+        "params": [50E3, 5, 915E6, 8, 4]
+    },
+    "AK": {
+        "delay_ms": 500,
+        "params": [250E3, 5, 915E6, 7, 4]
+    },
+    "AL": {
+        "duplicate": "AB"
+    },
+    "AM": {
+        "delay_ms": 500,
+        "params": [250E3, 5, 915E6, 9, 4]
+    },
+    "AN": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 10, 4]
+    },
+
+    "BA": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 8, 0]
+    },
+    "BB": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 8, 4]
+    },
+    "BC": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 8, 8]
+    },
+    "BD": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 8, 12]
+    },
+    "BE": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 8, 16]
+    },
+    "BF": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 8, 20]
+    },
+    "BG": {
+        "delay_ms": 1000,
+        "params": [500E3, 5, 915E6, 8, 4]
+    },
+    "BH": {
+        "duplicate": "BB"
+    },
+    "BI": {
+        "delay_ms": 1000,
+        "params": [100E3, 5, 915E6, 8, 4]
+    },
+    "BJ": {
+        "delay_ms": 1000,
+        "params": [50E3, 5, 915E6, 8, 4]
+    },
+    "BK": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 7, 4]
+    },
+    "BL": {
+        "duplicate": "BB"
+    },
+    "BM": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 9, 4]
+    },
+    "BN": {
+        "delay_ms": 1000,
+        "params": [250E3, 5, 915E6, 10, 4]
+    }
+}

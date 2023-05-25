@@ -1,6 +1,11 @@
 # Emergency Network
 
-This is a proof-of-concept communication system designed for maintaining emergency messaging during power loss on campus. This project assesses the viability of a flooding protocol for rapid message dissemination in critical situations. As a prototype, it employs a decentralized architecture, and aims to provide insights for future development of more advanced emergency communication systems.
+This is a proof-of-concept communication system designed for emergency messaging during power loss on campus. This project assesses the viability of a flooding protocol for rapid message dissemination in critical situations. As a prototype, it employs a decentralized architecture, and aims to provide insights for future development of more advanced emergency communication systems.
+
+The following directories are important to this project:
+* `analysis/` contains the analysis of our results from our experiments.
+* `src/` contains the source code for the Sender and Receiver nodes for our flooding protocol.
+* `util/` contains the details of the flooding protocol, and shared code for the Sender and Receiver nodes.
 
 # Acknowledgements
 

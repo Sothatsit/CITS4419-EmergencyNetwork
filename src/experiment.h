@@ -13,7 +13,7 @@
 // Used delay of 1000 for ZZAI & ZZAJ
 // Used delay of 500 for ZZAK & ZZAM
 // Used delay of 1000 for ZZAN
-// Used delay of 100o for all ZZB
+// Used delay of 1000 for all ZZB
 
 
 // ZZA- : Computer Science, Engineering Building, Reid Balcony
@@ -40,7 +40,7 @@ const LoRa_Params params[] = {
 
   // Changing spreading factor.
   // {   250E3,      5,           915E6,        7,             4},  // ZZ-K
-  // {   250E3,      5,           915E6,        8,             4},  // ZZ-L (Skipped as same as ZZ-L)
+  // {   250E3,      5,           915E6,        8,             4},  // ZZ-L (Skipped as same as ZZ-B)
   // {   250E3,      5,           915E6,        9,             4},  // ZZ-M
   {   250E3,      5,           915E6,        10,            4},  // ZZ-N
 };
