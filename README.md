@@ -4,6 +4,7 @@ This is a proof-of-concept communication system designed for emergency messaging
 
 The following directories are important to this project:
 * `analysis/` contains the analysis of our results from our experiments.
+* `analysis/logs-nodeX/` include the dataset we recorded from each node in our experiments.
 * `src/` contains the source code for the Sender and Receiver nodes for our flooding protocol.
 * `util/` contains the details of the flooding protocol, and shared code for the Sender and Receiver nodes.
 
